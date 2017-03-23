@@ -29,9 +29,26 @@ io.on('connection', (socket) => {
 			if(element.socket !== socket)
 				return element;
 		});
+		console.log(openConnections.length);
 	});
 	
-	io.on('seed', (seed) => {
+	socket.on('seed', (seed) => {
+        console.log("new seed: " + seed);
 		openConnections.push(new Connection(socket, seed));
-	});
+
+		socket.on('click', (id) =>{
+		   var connections = openConnections.filter(function(element)
+           {
+               if(element.seed == seed)
+                   return element;
+           });
+
+		   connections.forEach((connectionToUse)=>{
+		       connectionToUse.socket.emit('update', id);
+           });
+
+        });
+
+    });
+
 });
