@@ -22,19 +22,24 @@ var gameStates = [];
 
 io.on('connection', (socket) => {
     console.log('new connection!');
-	
-	socket.on('disconnect', function()
-	{
-		console.log('disconnect!');
-		openConnections = openConnections.filter(function(element)
-		{
-			if(element.socket !== socket)
-				return element;
-		});
-		console.log(openConnections.length);
-	});
-	
 	socket.on('seed', (seed) => {
+        socket.on('disconnect', function()
+        {
+            console.log('disconnect!');
+            openConnections = openConnections.filter(function(element)
+            {
+                if(element.socket !== socket)
+                    return element;
+            });
+            if(openConnections.filter(function(element){
+                    if(element.seed == seed)
+                        return element;
+                }).length == 0){
+                console.log(openConnections);
+                gameStates[seed] = [];
+            }
+            console.log(openConnections.length);
+        });
         console.log("new seed: " + seed);
 		openConnections.push(new Connection(socket, seed));
 		console.log(gameStates[seed]);
