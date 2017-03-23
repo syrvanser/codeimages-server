@@ -18,6 +18,8 @@ function Connection(socketToUse, gameSeed)
 	this.seed = gameSeed;
 }
 
+var gameStates = [];
+
 io.on('connection', (socket) => {
     console.log('new connection!');
 	
@@ -35,14 +37,22 @@ io.on('connection', (socket) => {
 	socket.on('seed', (seed) => {
         console.log("new seed: " + seed);
 		openConnections.push(new Connection(socket, seed));
-
+		console.log(gameStates[seed]);
+		if(gameStates[seed] == undefined)
+		    gameStates[seed] = [];
+		socket.emit('init', gameStates[seed]);
 		socket.on('click', (id) =>{
+		    var tmp = gameStates[seed];
+		    if(tmp == undefined)
+		        tmp = [];
+		    tmp.push(id);
+            gameStates[seed] = tmp;
+            console.log("len : " + gameStates[seed].length);
 		   var connections = openConnections.filter(function(element)
            {
                if(element.seed == seed)
                    return element;
            });
-
 		   connections.forEach((connectionToUse)=>{
 		       connectionToUse.socket.emit('update', id);
            });
