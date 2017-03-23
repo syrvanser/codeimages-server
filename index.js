@@ -10,6 +10,28 @@ server.listen(port, () => {
     console.log('Listening on 1337');
 });
 
+var openConnections = [];
+
+function Connection(socketToUse, gameSeed)
+{
+	this.socket = socketToUse;
+	this.seed = gameSeed;
+}
+
 io.on('connection', (socket) => {
-    console.log('new connection');
+    console.log('new connection!');
+	
+	socket.on('disconnect', function()
+	{
+		console.log('disconnect!');
+		openConnections = openConnections.filter(function(element)
+		{
+			if(element.socket !== socket)
+				return element;
+		});
+	});
+	
+	io.on('seed', (seed) => {
+		openConnections.push(new Connection(socket, seed));
+	});
 });
